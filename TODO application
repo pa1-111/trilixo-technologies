@@ -1,0 +1,78 @@
+npx create-next-app my-todo-app
+cd my-todo-app
+
+
+
+npm install firebase react-firebaseui
+
+
+// firebaseConfig.js
+const firebaseConfig = {
+  apiKey: "YOUR_API_KEY",
+  authDomain: "YOUR_AUTH_DOMAIN",
+  projectId: "YOUR_PROJECT_ID",
+  storageBucket: "YOUR_STORAGE_BUCKET",
+  messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+  appId: "YOUR_APP_ID",
+};
+
+export default firebaseConfig;
+
+
+// pages/_app.js
+import { useEffect } from "react";
+import firebase from "firebase/app";
+import "firebase/auth";
+import firebaseConfig from "../firebaseConfig";
+import { FirebaseAuthProvider } from "@react-firebase/auth";
+
+function MyApp({ Component, pageProps }) {
+  useEffect(() => {
+    if (!firebase.apps.length) {
+      firebase.initializeApp(firebaseConfig);
+    }
+  }, []);
+
+  return (
+    <FirebaseAuthProvider firebase={firebase} {...firebaseConfig}>
+      <Component {...pageProps} />
+    </FirebaseAuthProvider>
+  );
+}
+
+export default MyApp;
+
+
+
+
+// components/ToDo.js
+import { useAuth } from "@react-firebase/auth";
+
+const ToDo = () => {
+  const { isSignedIn, user } = useAuth();
+
+  if (!isSignedIn) {
+    return <p>Please sign in to view your tasks.</p>;
+  }
+
+  return (
+    <div>
+      <h1>Hello, {user.displayName}!</h1>
+      {/* ToDo functionality goes here */}
+    </div>
+  );
+};
+
+export default ToDo;
+
+
+// pages/index.js
+import ToDo from "../components/ToDo";
+
+export default function Home() {
+  return (
+    <div>
+      <ToDo />
+    </div>
+  );
+}
